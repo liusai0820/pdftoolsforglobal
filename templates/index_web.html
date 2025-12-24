@@ -3,706 +3,1104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF处理工具</title>
+    <title>PDF Tools Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         :root {
-            --primary: #667eea;
-            --primary-dark: #764ba2;
-            --success: #48bb78;
-            --error: #f56565;
-            --warning: #ed8936;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
+            --bg-body: #F9FAFB;
+            --bg-sidebar: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --text-tertiary: #9CA3AF;
+            --border-color: #E5E7EB;
+            --primary: #18181B; 
+            --primary-hover: #000000;
+            --accent-success: #10B981;
+            --accent-error: #EF4444;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .wrapper {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }
-        
-        .header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header p {
-            font-size: 16px;
-            opacity: 0.95;
-        }
-        
-        .module-selector {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            height: 100vh;
             display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .module-btn {
-            padding: 12px 28px;
-            border: 2px solid white;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        .module-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        .module-btn.active {
-            background: white;
-            color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-        
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+
+        .sidebar {
+            width: 250px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            flex-shrink: 0;
+            gap: 8px;
         }
-        
-        .card-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 24px;
-            font-size: 18px;
-            font-weight: 600;
+
+        .brand {
             display: flex;
             align-items: center;
             gap: 12px;
+            padding: 0 12px;
+            margin-bottom: 32px;
         }
         
-        .card-icon {
-            font-size: 24px;
-        }
-        
-        .card-body {
-            padding: 30px;
-        }
-        
-        .upload-zone {
-            border: 2px dashed var(--primary);
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
             border-radius: 8px;
-            padding: 50px 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--gray-50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
         }
-        
-        .upload-zone:hover {
-            border-color: var(--primary-dark);
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-        }
-        
-        .upload-zone.dragover {
-            border-color: var(--primary-dark);
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            transform: scale(1.02);
-        }
-        
-        .upload-zone input {
-            display: none;
-        }
-        
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-        
-        .upload-text {
+
+        .brand h1 {
             font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-label {
+            font-size: 11px;
             font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 8px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 16px 12px 8px;
         }
-        
-        .upload-hint {
-            font-size: 13px;
-            color: var(--gray-500);
-        }
-        
-        .file-info {
-            background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(72, 187, 120, 0.05) 100%);
-            border-left: 4px solid var(--success);
-            padding: 16px;
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
             border-radius: 6px;
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .file-info.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .file-name {
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 5px;
-            word-break: break-all;
-        }
-        
-        .file-size {
-            font-size: 12px;
-            color: var(--gray-500);
-        }
-        
-        .module-content {
-            display: none;
-        }
-        
-        .module-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        
-        .form-group {
-            margin-bottom: 24px;
-        }
-        
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 10px;
+            color: var(--text-secondary);
             font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
-        
-        .form-group input,
-        .form-group textarea {
+
+        .nav-item:hover { background: var(--bg-body); color: var(--text-primary); }
+        .nav-item.active { background: #F3F4F6; color: var(--text-primary); font-weight: 600; }
+        .nav-item svg { width: 18px; height: 18px; opacity: 0.8; }
+
+        .main-content {
+            flex: 1;
+            padding: 32px 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            margin: 0 auto;
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--gray-300);
-            border-radius: 6px;
+        }
+
+        .page-header { margin-bottom: 24px; }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .page-desc {
+            color: var(--text-secondary);
             font-size: 14px;
-            font-family: inherit;
-            transition: all 0.3s ease;
+            max-width: 600px;
+            line-height: 1.5;
         }
-        
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+
+        .workspace {
+            display: flex;
+            gap: 24px;
+            flex: 1;
+            min-height: 0;
+            align-items: flex-start;
         }
-        
-        .cmyk-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .cmyk-input {
+
+        .panel-left {
+            flex: 1;
+            min-width: 0;
+            height: 100%;
             display: flex;
             flex-direction: column;
         }
-        
-        .cmyk-input input {
-            padding: 10px;
-            border: 1px solid var(--gray-300);
-            border-radius: 6px;
-            font-size: 13px;
+
+        .panel-right {
+            width: 340px;
+            flex-shrink: 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .upload-container {
+            height: 100%;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone {
+            flex: 1;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-body);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 400px;
         }
         
-        .cmyk-label {
-            font-size: 11px;
-            color: var(--gray-500);
-            margin-top: 6px;
-            text-align: center;
-            font-weight: 600;
+        .upload-zone.hidden { display: none; }
+        .upload-zone:hover { border-color: var(--text-tertiary); background: #F3F4F6; }
+
+        .preview-area {
+            flex: 1;
+            background: #525659;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            padding: 20px;
+            position: relative;
         }
         
-        .color-picker-group {
+        .preview-area.hidden { display: none; }
+        
+        .preview-area.eyedropper-mode { cursor: crosshair; }
+        .preview-area.eyedropper-mode canvas { cursor: crosshair; }
+
+        canvas#pdfPreview {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 100%;
+        }
+
+        .preview-controls {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
             display: flex;
             gap: 12px;
-            align-items: flex-end;
+            align-items: center;
+            font-size: 13px;
+            z-index: 20;
+            backdrop-filter: blur(4px);
         }
         
-        .color-picker-group input[type="color"] {
-            width: 70px;
-            height: 44px;
-            border: 1px solid var(--gray-300);
-            border-radius: 6px;
-            cursor: pointer;
+        .eyedropper-hint {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2563EB;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 20;
+            display: none;
+            gap: 8px;
+            align-items: center;
         }
-        
-        .color-picker-group input[type="text"] {
-            flex: 1;
+        .eyedropper-hint.active { display: flex; }
+
+        /* 结果提示条 */
+        .result-banner {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 25;
+            display: none;
+            gap: 12px;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         }
-        
-        .alert {
-            padding: 14px 16px;
-            border-radius: 6px;
+        .result-banner.active { display: flex; }
+        .result-banner svg { width: 20px; height: 20px; }
+
+        .section-header {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             margin-bottom: 20px;
-            display: none;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-group { margin-bottom: 20px; }
+        
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .info-box {
+            background: #F3F4F6;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .info-box strong { font-weight: 600; color: var(--text-primary); }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             font-size: 14px;
-            animation: slideIn 0.3s ease;
+            color: var(--text-primary);
+            background: #fff;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
         }
         
-        .alert.show {
-            display: block;
+        .form-input { background-image: none; }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--text-primary);
+            box-shadow: 0 0 0 1px var(--text-primary);
         }
-        
-        .alert.success {
-            background: rgba(72, 187, 120, 0.1);
-            color: #22543d;
-            border-left: 4px solid var(--success);
-        }
-        
-        .alert.error {
-            background: rgba(245, 101, 101, 0.1);
-            color: #742a2a;
-            border-left: 4px solid var(--error);
-        }
-        
-        .alert a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 30px;
-        }
-        
-        .loading.show {
-            display: block;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--gray-200);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .button-group {
+
+        .picked-color-display {
             display: flex;
+            align-items: center;
             gap: 12px;
-            margin-top: 30px;
+            padding: 12px;
+            background: #F9FAFB;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 16px;
         }
-        
-        .btn {
+        .picked-color-swatch {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .picked-color-info {
             flex: 1;
-            padding: 14px 24px;
+            font-size: 13px;
+        }
+        .picked-color-info .hex { font-weight: 600; font-size: 15px; }
+        .picked-color-info .cmyk { color: var(--text-tertiary); margin-top: 2px; }
+
+        .cmyk-inputs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            font-size: 11px; 
+            text-align: center;
+        }
+        .cmyk-inputs div { display: flex; flex-direction: column; gap: 4px; }
+        .cmyk-inputs input { 
+            width: 100%; 
+            padding: 6px 4px; 
+            text-align: center; 
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            height: 44px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
+
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .btn-secondary {
-            background: var(--gray-100);
-            color: var(--gray-700);
-            border: 1px solid var(--gray-300);
+            background: #fff; border: 1px solid var(--border-color); color: var(--text-primary);
+            margin-bottom: 12px;
         }
+        .btn-secondary:hover { background: #F9FAFB; }
         
-        .btn-secondary:hover {
-            background: var(--gray-200);
-        }
-        
-        .footer {
-            text-align: center;
+        .btn-eyedropper {
+            background: #2563EB;
             color: white;
-            font-size: 13px;
-            opacity: 0.8;
         }
-        
-        @media (max-width: 768px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 28px;
-            }
-            
-            .cmyk-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
+        .btn-eyedropper:hover { background: #1D4ED8; }
+        .btn-eyedropper.active {
+            background: #1E40AF;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* 下载按钮 - 绿色醒目 */
+        .btn-download {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .btn-download:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        /* 结果面板 */
+        .result-panel {
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            display: none;
+        }
+        .result-panel.active { display: block; }
+        .result-panel h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #047857;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .result-panel p {
+            font-size: 13px;
+            color: #065F46;
+            margin-bottom: 16px;
+        }
+
+        .status-box {
+            margin-top: 20px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; display: none;
+        }
+        .status-box.error { background: #FEF2F2; color: #B91C1C; }
+
+        .spinner {
+            width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 900px) {
+            .workspace { flex-direction: column; }
+            .panel-right { width: 100%; }
         }
     </style>
 </head>
 <body>
-    <div class="wrapper">
-        <div class="header">
-            <h1>📄 PDF处理工具</h1>
-            <p>在线PDF翻译和颜色替换</p>
-        </div>
-        
-        <!-- 功能模块选择 -->
-        <div class="module-selector">
-            <button class="module-btn active" data-module="translate">
-                🌐 PDF翻译
-            </button>
-            <button class="module-btn" data-module="color">
-                🎨 颜色替换
-            </button>
-        </div>
-        
-        <div class="main-container">
-            <!-- 左侧：上传 -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-icon">📁</span>
-                    <span>上传PDF</span>
-                </div>
-                <div class="card-body">
-                    <div class="upload-zone" id="uploadZone">
-                        <div class="upload-icon">📤</div>
-                        <div class="upload-text">点击或拖拽上传</div>
-                        <div class="upload-hint">支持最大50MB的PDF文件</div>
-                        <input type="file" id="fileInput" accept=".pdf">
-                    </div>
-                    <div class="file-info" id="fileInfo">
-                        <div class="file-name" id="fileName"></div>
-                        <div class="file-size" id="fileSize"></div>
-                    </div>
-                </div>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
             </div>
-            
-            <!-- 右侧：处理选项 -->
-            <div class="card" id="optionsCard" style="display: none;">
-                <div class="card-header">
-                    <span class="card-icon">⚙️</span>
-                    <span>处理选项</span>
-                </div>
-                <div class="card-body">
-                    <!-- PDF翻译模块 -->
-                    <div class="module-content active" id="translateModule">
-                        <div class="form-group">
-                            <label>翻译说明</label>
-                            <p style="color: var(--gray-600); font-size: 14px; line-height: 1.6;">
-                                ✓ 自动识别PDF中的中文文本<br>
-                                ✓ 使用AI进行精准翻译<br>
-                                ✓ 保留原始PDF布局和格式<br>
-                                ✓ 输出文件名: 原名_en.pdf
-                            </p>
+            <h1>PDF Tools Pro</h1>
+        </div>
+
+        <div class="nav-label">工具箱</div>
+        <div class="nav-item active" id="navTranslate" onclick="switchModule('translate')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span>智能翻译</span>
+        </div>
+        <div class="nav-item" id="navColor" onclick="switchModule('color')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+            </svg>
+            <span>色彩校正</span>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h2 class="page-title" id="pageTitle">PDF 智能翻译</h2>
+            <div class="page-desc" id="pageDesc">
+                AI 驱动的专业文档翻译工具，无需破坏版面。
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="panel-left">
+                <div class="upload-container">
+                    <div class="upload-zone" id="uploadZone">
+                        <div style="background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 16px;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
                         </div>
+                        <div class="upload-title">点击或拖拽上传 PDF</div>
+                        <div class="upload-hint">支持最大 50MB 的文档</div>
+                        <input type="file" id="fileInput" accept=".pdf" hidden>
                     </div>
-                    
-                    <!-- 颜色替换模块 -->
-                    <div class="module-content" id="colorModule">
-                        <div class="form-group">
-                            <label>源颜色 (CMYK)</label>
-                            <div class="cmyk-grid">
-                                <div class="cmyk-input">
-                                    <input type="number" id="sourceC" min="0" max="1" step="0.0001" value="0.7804">
-                                    <div class="cmyk-label">C</div>
-                                </div>
-                                <div class="cmyk-input">
-                                    <input type="number" id="sourceM" min="0" max="1" step="0.0001" value="0.8667">
-                                    <div class="cmyk-label">M</div>
-                                </div>
-                                <div class="cmyk-input">
-                                    <input type="number" id="sourceY" min="0" max="1" step="0.0001" value="0.0000">
-                                    <div class="cmyk-label">Y</div>
-                                </div>
-                                <div class="cmyk-input">
-                                    <input type="number" id="sourceK" min="0" max="1" step="0.0001" value="0.0000">
-                                    <div class="cmyk-label">K</div>
-                                </div>
-                            </div>
+
+                    <div id="previewArea" class="preview-area hidden">
+                        <!-- 取色笔提示 -->
+                        <div id="eyedropperHint" class="eyedropper-hint">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17.94 2.94a2.5 2.5 0 1 1 3.535 3.535L10.414 17.535l-4.95 1.414 1.414-4.95L17.94 2.94z"/>
+                            </svg>
+                            点击 PDF 中的颜色进行取色
                         </div>
                         
-                        <div class="form-group">
-                            <label>目标颜色</label>
-                            <div class="color-picker-group">
-                                <input type="color" id="targetColorPicker" value="#01beb0">
-                                <input type="text" id="targetColorHex" value="#01beb0">
-                            </div>
+                        <!-- 处理完成提示 -->
+                        <div id="resultBanner" class="result-banner">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>✨ 处理完成！下面是处理后的预览</span>
+                        </div>
+                        
+                        <canvas id="pdfPreview"></canvas>
+                        <div class="preview-controls">
+                            <span id="fileNameDisplay">文件预览</span>
+                            <span style="opacity: 0.5">|</span>
+                            <button class="btn-text" style="color:white; text-decoration:none; background:none; border:none; cursor:pointer;" onclick="reUpload()">更换文件</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- 消息和按钮 -->
-        <div class="card">
-            <div class="card-body">
-                <div class="alert" id="alert"></div>
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <div>处理中，请稍候...</div>
-                </div>
-                <div class="button-group">
-                    <button class="btn btn-secondary" id="resetBtn">重置</button>
-                    <button class="btn btn-primary" id="processBtn" disabled>开始处理</button>
+
+            <div class="panel-right">
+                <div class="card">
+                    <div class="section-header">配置参数</div>
+
+                    <!-- 翻译模块 -->
+                    <div id="moduleTranslate">
+                        <div class="info-box">
+                            <strong>Note:</strong> 目前版本针对<b>文字型 PDF</b>优化。扫描件支持开发中。
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">目标语言</label>
+                            <select class="form-select" id="targetLanguage">
+                                <option value="English">English (英语)</option>
+                                <option value="Japanese">Japanese (日语)</option>
+                                <option value="Korean">Korean (韩语)</option>
+                                <option value="French">French (法语)</option>
+                                <option value="German">German (德语)</option>
+                                <option value="Chinese">Chinese (中文繁体)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 颜色模块 -->
+                    <div id="moduleColor" class="hidden">
+                        <div class="form-group">
+                            <label class="form-label">文档中的颜色 (点击选择)</label>
+                            <div id="colorPalette" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                                <div style="color: var(--text-tertiary); font-size: 12px;">上传文件后自动分析...</div>
+                            </div>
+                            <button id="btnEyedropper" class="btn-secondary btn-eyedropper" onclick="toggleEyedropper()" style="height: 36px; font-size: 13px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17.94 2.94a2.5 2.5 0 1 1 3.535 3.535L10.414 17.535l-4.95 1.414 1.414-4.95L17.94 2.94z"/>
+                                </svg>
+                                或使用取色笔
+                            </button>
+                        </div>
+
+                        <div id="pickedColorDisplay" class="picked-color-display hidden">
+                            <div id="pickedSwatch" class="picked-color-swatch"></div>
+                            <div class="picked-color-info">
+                                <div class="hex" id="pickedHex">#0000FF</div>
+                                <div class="cmyk" id="pickedCmyk">CMYK: 0.78, 0.87, 0, 0</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">源颜色 (CMYK)</label>
+                            <div class="cmyk-inputs">
+                                <div><span>C</span><input type="number" id="sourceC" class="form-input" value="0" step="0.0001"></div>
+                                <div><span>M</span><input type="number" id="sourceM" class="form-input" value="0" step="0.0001"></div>
+                                <div><span>Y</span><input type="number" id="sourceY" class="form-input" value="0" step="0.0001"></div>
+                                <div><span>K</span><input type="number" id="sourceK" class="form-input" value="0" step="0.0001"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">替换为 (目标颜色)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="color" id="targetColorPicker" value="#01beb0" style="height: 40px; width: 40px; border: none; background: none; cursor: pointer;">
+                                <input type="text" id="targetColorHex" class="form-input" value="#01beb0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮区域 -->
+                    <div id="actionArea" style="margin-top: 24px;">
+                        <button class="btn-primary" id="processBtn" disabled>
+                            <span id="btnSpinner" class="spinner hidden"></span>
+                            <span id="btnText">开始处理</span>
+                        </button>
+                    </div>
+
+                    <!-- 结果面板 - 处理完成后显示 -->
+                    <div id="resultPanel" class="result-panel">
+                        <h4>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            处理完成
+                        </h4>
+                        <p id="resultMessage">文档已成功处理，左侧显示的是处理后的预览。</p>
+                        <a id="downloadLink" href="#" download>
+                            <button class="btn-primary btn-download">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                下载处理后的 PDF
+                            </button>
+                        </a>
+                        <button class="btn-secondary" style="margin-top: 12px;" onclick="resetToOriginal()">
+                            继续处理 / 重新选择
+                        </button>
+                    </div>
+
+                    <div id="statusBox" class="status-box"></div>
                 </div>
             </div>
         </div>
-        
-        <div class="footer">
-            <p>© 2024 PDF处理工具 | 支持翻译和颜色替换</p>
-        </div>
-    </div>
-    
+    </main>
+
     <script>
-        let uploadedFile = null;
         let currentModule = 'translate';
-        
-        const uploadZone = document.getElementById('uploadZone');
-        const fileInput = document.getElementById('fileInput');
-        const fileInfo = document.getElementById('fileInfo');
-        const optionsCard = document.getElementById('optionsCard');
-        const processBtn = document.getElementById('processBtn');
-        const alert = document.getElementById('alert');
-        
-        // 模块切换
-        document.querySelectorAll('.module-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const module = btn.dataset.module;
-                currentModule = module;
-                
-                document.querySelectorAll('.module-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.module-content').forEach(c => c.classList.remove('active'));
-                
-                btn.classList.add('active');
-                document.getElementById(module + 'Module').classList.add('active');
-            });
-        });
-        
-        // 文件上传
-        uploadZone.addEventListener('click', () => fileInput.click());
-        
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('dragover');
-        });
-        
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
-        });
-        
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            handleFileSelect(e.dataTransfer.files);
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            handleFileSelect(e.target.files);
-        });
-        
-        function handleFileSelect(files) {
-            if (files.length === 0) return;
+        let uploadedFile = null;
+        let pdfDoc = null;
+        let eyedropperActive = false;
+        let analyzedColors = [];
+        let lastDownloadUrl = null;
+
+        const ui = {
+            navTranslate: document.getElementById('navTranslate'),
+            navColor: document.getElementById('navColor'),
+            moduleTranslate: document.getElementById('moduleTranslate'),
+            moduleColor: document.getElementById('moduleColor'),
+            pageTitle: document.getElementById('pageTitle'),
+            pageDesc: document.getElementById('pageDesc'),
+            uploadZone: document.getElementById('uploadZone'),
+            previewArea: document.getElementById('previewArea'),
+            pdfPreview: document.getElementById('pdfPreview'),
+            fileNameDisplay: document.getElementById('fileNameDisplay'),
+            fileInput: document.getElementById('fileInput'),
+            processBtn: document.getElementById('processBtn'),
+            btnText: document.getElementById('btnText'),
+            btnSpinner: document.getElementById('btnSpinner'),
+            statusBox: document.getElementById('statusBox'),
+            btnEyedropper: document.getElementById('btnEyedropper'),
+            eyedropperHint: document.getElementById('eyedropperHint'),
+            resultBanner: document.getElementById('resultBanner'),
+            pickedColorDisplay: document.getElementById('pickedColorDisplay'),
+            pickedSwatch: document.getElementById('pickedSwatch'),
+            pickedHex: document.getElementById('pickedHex'),
+            pickedCmyk: document.getElementById('pickedCmyk'),
+            targetColorPicker: document.getElementById('targetColorPicker'),
+            targetColorHex: document.getElementById('targetColorHex'),
+            actionArea: document.getElementById('actionArea'),
+            resultPanel: document.getElementById('resultPanel'),
+            resultMessage: document.getElementById('resultMessage'),
+            downloadLink: document.getElementById('downloadLink'),
+            colorPalette: document.getElementById('colorPalette')
+        };
+
+        function switchModule(module) {
+            currentModule = module;
+            ui.navTranslate.classList.toggle('active', module === 'translate');
+            ui.navColor.classList.toggle('active', module === 'color');
+            ui.moduleTranslate.classList.toggle('hidden', module !== 'translate');
+            ui.moduleColor.classList.toggle('hidden', module !== 'color');
             
-            const file = files[0];
-            if (file.type !== 'application/pdf') {
-                showAlert('只支持PDF文件', 'error');
-                return;
+            ui.pageTitle.textContent = module === 'translate' ? 'PDF 智能翻译' : '色彩校正';
+            ui.pageDesc.textContent = module === 'translate' 
+                ? 'AI 驱动的专业文档翻译工具，无需破坏版面。' 
+                : '精准替换 PDF 中的矢量颜色，适用于企业 VI 调整。';
+            ui.btnText.textContent = module === 'translate' ? '开始翻译' : '执行替换';
+            
+            if (module === 'color' && uploadedFile) {
+                analyzeColors(uploadedFile.filepath);
             }
             
+            if (module !== 'color') {
+                setEyedropper(false);
+            }
+        }
+
+        ui.uploadZone.addEventListener('click', () => ui.fileInput.click());
+        ui.fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        
+        ui.uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); ui.uploadZone.classList.add('dragover'); });
+        ui.uploadZone.addEventListener('dragleave', () => ui.uploadZone.classList.remove('dragover'));
+        ui.uploadZone.addEventListener('drop', (e) => { 
+            e.preventDefault(); 
+            ui.uploadZone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        function reUpload() {
+            ui.fileInput.value = '';
+            ui.previewArea.classList.add('hidden');
+            ui.uploadZone.classList.remove('hidden');
+            uploadedFile = null;
+            ui.processBtn.disabled = true;
+            ui.statusBox.classList.add('hidden');
+            ui.resultPanel.classList.remove('active');
+            ui.resultBanner.classList.remove('active');
+            ui.actionArea.style.display = 'block';
+            setEyedropper(false);
+        }
+
+        function resetToOriginal() {
+            // 恢复显示原始 PDF
+            if (uploadedFile && uploadedFile.originalData) {
+                renderPDF(uploadedFile.originalData);
+            }
+            ui.resultPanel.classList.remove('active');
+            ui.resultBanner.classList.remove('active');
+            ui.actionArea.style.display = 'block';
+            ui.processBtn.disabled = false;
+        }
+
+        function handleFile(file) {
+            if (!file || file.type !== 'application/pdf') {
+                alert('请上传 PDF 文件');
+                return;
+            }
             if (file.size > 50 * 1024 * 1024) {
-                showAlert('文件大小不能超过50MB', 'error');
+                alert('文件大小不能超过 50MB');
                 return;
             }
-            
-            uploadedFile = file;
-            document.getElementById('fileName').textContent = `📄 ${file.name}`;
-            document.getElementById('fileSize').textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
-            fileInfo.classList.add('show');
-            optionsCard.style.display = 'block';
-            processBtn.disabled = false;
-            
+
+            const fileReader = new FileReader();
+            fileReader.onload = function() {
+                const typedarray = new Uint8Array(this.result);
+                renderPDF(typedarray);
+                // 保存原始数据以便恢复
+                if (uploadedFile) {
+                    uploadedFile.originalData = typedarray;
+                }
+            };
+            fileReader.readAsArrayBuffer(file);
+            ui.fileNameDisplay.textContent = file.name;
+
             uploadFile(file);
         }
-        
+
+        async function renderPDF(data) {
+            ui.uploadZone.classList.add('hidden');
+            ui.previewArea.classList.remove('hidden');
+            
+            try {
+                const loadingTask = pdfjsLib.getDocument(data);
+                pdfDoc = await loadingTask.promise;
+                const page = await pdfDoc.getPage(1);
+                
+                const scale = 1.5;
+                const viewport = page.getViewport({scale: scale});
+                const canvas = ui.pdfPreview;
+                const context = canvas.getContext('2d');
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+            } catch (e) {
+                console.error('PDF Render Error:', e);
+            }
+        }
+
+        async function renderPDFFromUrl(url) {
+            try {
+                const loadingTask = pdfjsLib.getDocument(url);
+                pdfDoc = await loadingTask.promise;
+                const page = await pdfDoc.getPage(1);
+                
+                const scale = 1.5;
+                const viewport = page.getViewport({scale: scale});
+                const canvas = ui.pdfPreview;
+                const context = canvas.getContext('2d');
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+                
+                console.log('Rendered result PDF from:', url);
+            } catch (e) {
+                console.error('PDF Render Error:', e);
+            }
+        }
+
         function uploadFile(file) {
             const formData = new FormData();
             formData.append('file', file);
             
-            fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    uploadedFile.serverPath = data.filepath;
-                    showAlert('✓ 文件上传成功', 'success');
-                } else {
-                    showAlert(data.error || '上传失败', 'error');
-                }
-            })
-            .catch(e => showAlert('上传失败: ' + e.message, 'error'));
+            setLoading(true, '上传中...');
+            
+            fetch('/api/upload', { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    setLoading(false);
+                    if (data.success) {
+                        uploadedFile = data;
+                        ui.processBtn.disabled = false;
+                        
+                        // 保存原始数据引用
+                        const fileReader = new FileReader();
+                        fileReader.onload = function() {
+                            uploadedFile.originalData = new Uint8Array(this.result);
+                        };
+                        fileReader.readAsArrayBuffer(file);
+                        
+                        if (currentModule === 'color') {
+                            analyzeColors(data.filepath);
+                        }
+                    } else {
+                        showStatus(data.error || '上传失败', 'error');
+                        reUpload();
+                    }
+                })
+                .catch(() => {
+                    setLoading(false);
+                    showStatus('网络错误', 'error');
+                    reUpload();
+                });
         }
-        
-        // 颜色选择器同步
-        const colorPicker = document.getElementById('targetColorPicker');
-        const colorHex = document.getElementById('targetColorHex');
-        
-        colorPicker.addEventListener('change', (e) => {
-            colorHex.value = e.target.value;
-        });
-        
-        colorHex.addEventListener('change', (e) => {
-            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
-                colorPicker.value = e.target.value;
-            }
-        });
-        
-        // 处理PDF
-        processBtn.addEventListener('click', () => {
-            if (!uploadedFile || !uploadedFile.serverPath) {
-                showAlert('请先上传PDF文件', 'error');
-                return;
-            }
+
+        function analyzeColors(filepath) {
+            ui.colorPalette.innerHTML = '<div style="color: var(--text-tertiary); font-size: 12px;">分析中...</div>';
             
-            const loading = document.getElementById('loading');
-            loading.classList.add('show');
-            
-            let payload = {
-                input_file: uploadedFile.serverPath,
-                operation: currentModule
-            };
-            
-            if (currentModule === 'color') {
-                payload.source_cmyk = [
-                    parseFloat(document.getElementById('sourceC').value),
-                    parseFloat(document.getElementById('sourceM').value),
-                    parseFloat(document.getElementById('sourceY').value),
-                    parseFloat(document.getElementById('sourceK').value)
-                ];
-                payload.target_hex = document.getElementById('targetColorHex').value;
-            }
-            
-            fetch('/api/process', {
+            fetch('/api/analyze_colors', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ filepath: filepath })
             })
             .then(r => r.json())
             .then(data => {
-                loading.classList.remove('show');
-                if (data.success) {
-                    showAlert(`✓ ${data.message} <a href="${data.download_url}">下载</a>`, 'success');
+                if (data.success && data.colors && data.colors.length > 0) {
+                    analyzedColors = data.colors;
+                    console.log('Analyzed colors:', analyzedColors);
+                    renderColorPalette(analyzedColors);
                 } else {
-                    showAlert(data.error || '处理失败', 'error');
+                    ui.colorPalette.innerHTML = '<div style="color: var(--text-tertiary); font-size: 12px;">未找到矢量颜色</div>';
                 }
             })
             .catch(e => {
-                loading.classList.remove('show');
-                showAlert('处理失败: ' + e.message, 'error');
+                console.error('Color analysis failed:', e);
+                ui.colorPalette.innerHTML = '<div style="color: var(--text-tertiary); font-size: 12px;">分析失败</div>';
             });
-        });
+        }
         
-        // 重置
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            location.reload();
-        });
-        
-        function showAlert(message, type) {
-            alert.innerHTML = message;
-            alert.className = `alert show ${type}`;
+        function renderColorPalette(colors) {
+            ui.colorPalette.innerHTML = '';
+            // 只显示前 8 个非黑色的颜色
+            const filtered = colors.filter(c => !(c.c < 0.1 && c.m < 0.1 && c.y < 0.1 && c.k > 0.7));
+            const toShow = filtered.slice(0, 8);
             
-            if (type === 'success') {
-                setTimeout(() => alert.classList.remove('show'), 5000);
+            toShow.forEach(col => {
+                const div = document.createElement('div');
+                div.style.cssText = `width: 32px; height: 32px; border-radius: 6px; background: ${col.hex}; cursor: pointer; border: 2px solid transparent; transition: all 0.15s;`;
+                div.title = `CMYK: ${col.c}, ${col.m}, ${col.y}, ${col.k}`;
+                div.addEventListener('click', () => selectColor(col, div));
+                div.addEventListener('mouseenter', () => div.style.transform = 'scale(1.1)');
+                div.addEventListener('mouseleave', () => div.style.transform = 'scale(1)');
+                ui.colorPalette.appendChild(div);
+            });
+        }
+        
+        function selectColor(col, el) {
+            // 移除其他选中状态
+            ui.colorPalette.querySelectorAll('div').forEach(d => d.style.borderColor = 'transparent');
+            if (el) el.style.borderColor = '#000';
+            
+            // 显示选中的颜色
+            ui.pickedColorDisplay.classList.remove('hidden');
+            ui.pickedSwatch.style.backgroundColor = col.hex;
+            ui.pickedHex.textContent = col.hex;
+            ui.pickedCmyk.textContent = `CMYK: ${col.c}, ${col.m}, ${col.y}, ${col.k}`;
+            
+            // 填入 CMYK 值
+            document.getElementById('sourceC').value = col.c;
+            document.getElementById('sourceM').value = col.m;
+            document.getElementById('sourceY').value = col.y;
+            document.getElementById('sourceK').value = col.k;
+        }
+
+        function toggleEyedropper() {
+            setEyedropper(!eyedropperActive);
+        }
+
+        function setEyedropper(active) {
+            eyedropperActive = active;
+            ui.previewArea.classList.toggle('eyedropper-mode', active);
+            ui.btnEyedropper.classList.toggle('active', active);
+            ui.eyedropperHint.classList.toggle('active', active);
+        }
+
+        ui.pdfPreview.addEventListener('click', function(e) {
+            if (!eyedropperActive) return;
+            
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const scaleX = this.width / rect.width;
+            const scaleY = this.height / rect.height;
+            const canvasX = Math.floor(x * scaleX);
+            const canvasY = Math.floor(y * scaleY);
+            
+            const ctx = this.getContext('2d');
+            const pixel = ctx.getImageData(canvasX, canvasY, 1, 1).data;
+            const [r, g, b] = pixel;
+            
+            const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+            
+            console.log(`Picked RGB: ${r}, ${g}, ${b} -> ${hex}`);
+            
+            const bestMatch = findClosestCMYK(r, g, b);
+            
+            if (bestMatch) {
+                ui.pickedColorDisplay.classList.remove('hidden');
+                ui.pickedSwatch.style.backgroundColor = hex;
+                ui.pickedHex.textContent = hex;
+                ui.pickedCmyk.textContent = `CMYK: ${bestMatch.c}, ${bestMatch.m}, ${bestMatch.y}, ${bestMatch.k}`;
+                
+                document.getElementById('sourceC').value = bestMatch.c;
+                document.getElementById('sourceM').value = bestMatch.m;
+                document.getElementById('sourceY').value = bestMatch.y;
+                document.getElementById('sourceK').value = bestMatch.k;
+            } else {
+                const cmyk = rgbToCmyk(r, g, b);
+                ui.pickedColorDisplay.classList.remove('hidden');
+                ui.pickedSwatch.style.backgroundColor = hex;
+                ui.pickedHex.textContent = hex;
+                ui.pickedCmyk.textContent = `CMYK (近似): ${cmyk.c.toFixed(4)}, ${cmyk.m.toFixed(4)}, ${cmyk.y.toFixed(4)}, ${cmyk.k.toFixed(4)}`;
+                
+                document.getElementById('sourceC').value = cmyk.c.toFixed(4);
+                document.getElementById('sourceM').value = cmyk.m.toFixed(4);
+                document.getElementById('sourceY').value = cmyk.y.toFixed(4);
+                document.getElementById('sourceK').value = cmyk.k.toFixed(4);
             }
+            
+            setEyedropper(false);
+        });
+
+        function findClosestCMYK(r, g, b) {
+            if (analyzedColors.length === 0) return null;
+            
+            let bestMatch = null;
+            let minDistance = Infinity;
+            
+            for (const col of analyzedColors) {
+                const cr = 255 * (1 - col.c) * (1 - col.k);
+                const cg = 255 * (1 - col.m) * (1 - col.k);
+                const cb = 255 * (1 - col.y) * (1 - col.k);
+                
+                const dist = Math.sqrt(
+                    Math.pow(r - cr, 2) + 
+                    Math.pow(g - cg, 2) + 
+                    Math.pow(b - cb, 2)
+                );
+                
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    bestMatch = col;
+                }
+            }
+            
+            if (minDistance > 100) {
+                console.log('No close CMYK match found, distance:', minDistance);
+                return null;
+            }
+            
+            console.log('Best CMYK match:', bestMatch, 'distance:', minDistance);
+            return bestMatch;
+        }
+
+        function rgbToCmyk(r, g, b) {
+            r = r / 255;
+            g = g / 255;
+            b = b / 255;
+            
+            const k = 1 - Math.max(r, g, b);
+            if (k === 1) {
+                return {c: 0, m: 0, y: 0, k: 1};
+            }
+            const c = (1 - r - k) / (1 - k);
+            const m = (1 - g - k) / (1 - k);
+            const y = (1 - b - k) / (1 - k);
+            return {c, m, y, k};
+        }
+
+        // --- Processing ---
+        ui.processBtn.addEventListener('click', () => {
+             if (!uploadedFile) return;
+             
+             const payload = {
+                 input_file: uploadedFile.filepath,
+                 operation: currentModule
+             };
+             
+             if (currentModule === 'translate') {
+                 payload.target_language = document.getElementById('targetLanguage').value;
+             } else {
+                 payload.source_cmyk = [
+                        parseFloat(document.getElementById('sourceC').value),
+                        parseFloat(document.getElementById('sourceM').value),
+                        parseFloat(document.getElementById('sourceY').value),
+                        parseFloat(document.getElementById('sourceK').value)
+                 ];
+                 payload.target_hex = ui.targetColorHex.value;
+             }
+             
+             setLoading(true, '处理中...');
+             ui.statusBox.classList.add('hidden');
+             
+             fetch('/api/process', {
+                 method: 'POST',
+                 headers: {'Content-Type': 'application/json'},
+                 body: JSON.stringify(payload)
+             })
+             .then(r => r.json())
+             .then(data => {
+                 setLoading(false);
+                 if (data.success) {
+                     // 显示结果
+                     showResult(data.download_url, data.filename);
+                 } else {
+                     showStatus('出错: ' + data.error, 'error');
+                 }
+             })
+             .catch(e => {
+                 setLoading(false);
+                 showStatus('请求失败', 'error');
+             });
+        });
+
+        function showResult(downloadUrl, filename) {
+            lastDownloadUrl = downloadUrl;
+            
+            // 1. 在预览区加载处理后的 PDF
+            renderPDFFromUrl(downloadUrl);
+            
+            // 2. 显示结果横幅
+            ui.resultBanner.classList.add('active');
+            
+            // 3. 更新文件名显示
+            ui.fileNameDisplay.textContent = filename + ' (已处理)';
+            
+            // 4. 隐藏处理按钮，显示结果面板
+            ui.actionArea.style.display = 'none';
+            ui.resultPanel.classList.add('active');
+            
+            // 5. 设置下载链接
+            ui.downloadLink.href = downloadUrl;
+            ui.downloadLink.download = filename;
+            
+            // 6. 更新结果消息
+            if (currentModule === 'translate') {
+                ui.resultMessage.textContent = '文档翻译完成！左侧显示的是翻译后的预览。';
+            } else {
+                ui.resultMessage.textContent = '颜色替换完成！左侧显示的是替换后的预览。';
+            }
+        }
+
+        ui.targetColorPicker.addEventListener('input', (e) => ui.targetColorHex.value = e.target.value);
+        ui.targetColorHex.addEventListener('change', (e) => ui.targetColorPicker.value = e.target.value);
+
+        function setLoading(isLoading, text) {
+            ui.processBtn.disabled = isLoading;
+            if (isLoading) {
+                ui.btnSpinner.classList.remove('hidden');
+                ui.btnText.textContent = text;
+            } else {
+                ui.btnSpinner.classList.add('hidden');
+                ui.btnText.textContent = currentModule === 'translate' ? '开始翻译' : '执行替换';
+            }
+        }
+        function showStatus(msg, type) {
+            ui.statusBox.classList.remove('hidden');
+            ui.statusBox.className = `status-box ${type}`;
+            ui.statusBox.innerHTML = msg;
         }
     </script>
 </body>

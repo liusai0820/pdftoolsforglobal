@@ -93,7 +93,7 @@ class PDFInplaceTranslator:
         
         return result
     
-    def batch_translate(self, texts: list[str]) -> dict[str, str]:
+    def batch_translate(self, texts: list[str], target_language: str = "English") -> dict[str, str]:
         """批量翻译文本"""
         if not texts:
             return {}
@@ -107,36 +107,38 @@ class PDFInplaceTranslator:
         
         for i in range(0, len(unique_texts), batch_size):
             batch = unique_texts[i:i + batch_size]
-            batch_translations = self._translate_batch(batch)
+            batch_translations = self._translate_batch(batch, target_language)
             translations.update(batch_translations)
             print(f"   翻译进度: {min(i + batch_size, len(unique_texts))}/{len(unique_texts)}")
         
         return translations
     
-    def _translate_batch(self, texts: list[str]) -> dict[str, str]:
-        """翻译一批文本 - 生成简洁的英文，长度尽量接近原文"""
-        # 计算每个文本的目标长度（字符数）
+    def _translate_batch(self, texts: list[str], target_language: str) -> dict[str, str]:
+        """翻译一批文本 - 生成准确专业的翻译"""
+        # 构建翻译列表，包含字符数限制
         text_with_limits = []
         for i, t in enumerate(texts):
-            # 中文字符数 * 1.2 = 目标英文字符数上限
-            max_chars = int(len(t) * 1.5)
-            text_with_limits.append(f"{i+1}|||{t}|||MAX:{max_chars}chars")
+            # 只有翻译成英文时才需要严格的字符限制以防溢出
+            # 其他语言（如日韩）通常比英文紧凑，或者比中文略长
+            length_multiplier = 3 if target_language == "English" else 2.5
+            max_chars = int(len(t) * length_multiplier)
+            text_with_limits.append(f"{i+1}|||{t}|||MAX:{max_chars}")
         
         text_list = "\n".join(text_with_limits)
         
-        prompt = f"""Translate Chinese to English for industrial sensor document.
+        prompt = f"""Translate Chinese to {target_language} for an industrial sensor/safety equipment document.
 
-CRITICAL RULES:
-- Keep translation SHORT and CONCISE
-- English length must be close to or shorter than Chinese length
-- Use abbreviations where appropriate (e.g., "temp" for "temperature")
-- Omit unnecessary words
-- Format: NUMBER|||ENGLISH_TRANSLATION
+RULES:
+- Provide accurate, professional translations
+- Use proper industry terminology
+- Keep translations natural and complete
+- Each translation should fit within MAX character limit but prioritize clarity
+- Format: NUMBER|||TRANSLATION
 
 Input:
 {text_list}
 
-Output (same NUMBER|||TRANSLATION format):"""
+Output (NUMBER|||TRANSLATION):"""
         
         messages = [{"role": "user", "content": prompt}]
         response = self.ai._call_api(messages, max_tokens=8192)
@@ -153,11 +155,8 @@ Output (same NUMBER|||TRANSLATION format):"""
                         idx = int(parts[0].strip()) - 1
                         if 0 <= idx < len(texts):
                             translation = parts[1].strip()
-                            # 清理翻译结果：移除可能残留的格式标记
+                            # 清理翻译结果
                             translation = translation.split("|||")[0].strip()
-                            # 移除 MAX: 等标记
-                            if "MAX:" in translation:
-                                translation = translation.split("MAX:")[0].strip()
                             if translation:
                                 result[texts[idx]] = translation
                     except ValueError:
@@ -171,7 +170,8 @@ Output (same NUMBER|||TRANSLATION format):"""
         self, 
         input_path: str, 
         output_path: str = None,
-        font_path: str = None
+        font_path: str = None,
+        target_language: str = "English"
     ) -> str:
         """
         翻译 PDF 文件，保留原始布局
@@ -180,15 +180,18 @@ Output (same NUMBER|||TRANSLATION format):"""
             input_path: 输入 PDF 路径
             output_path: 输出 PDF 路径（默认在 output 目录）
             font_path: 自定义字体路径（用于英文显示）
+            target_language: 目标语言
         
         Returns:
             输出文件路径
         """
         input_path = Path(input_path)
         if output_path is None:
-            output_path = OUTPUT_DIR / f"{input_path.stem}_EN.pdf"
+            # 根据语言生成后缀
+            suffix = "_en" if target_language == "English" else f"_{target_language.lower()}"
+            output_path = OUTPUT_DIR / f"{input_path.stem}{suffix}.pdf"
         
-        print(f"📄 开始翻译: {input_path.name}")
+        print(f"📄 开始翻译: {input_path.name} -> {target_language}")
         
         # Step 1: 提取中文文本
         print("\n🔍 Step 1: 提取中文文本...")
@@ -203,8 +206,8 @@ Output (same NUMBER|||TRANSLATION format):"""
             return str(output_path)
         
         # Step 2: 批量翻译
-        print("\n🤖 Step 2: AI 翻译...")
-        translations = self.batch_translate(chinese_texts)
+        print(f"\n🤖 Step 2: AI 翻译 ({target_language})...")
+        translations = self.batch_translate(chinese_texts, target_language=target_language)
         print(f"   翻译完成: {len(translations)} 条")
         
         # Step 3: 替换文本
@@ -322,10 +325,11 @@ def translate_pdf_inplace(
     pdf_path: str,
     api_key: str = None,
     model: str = None,
-    output_path: str = None
+    output_path: str = None,
+    target_language: str = "English"
 ) -> str:
     """
     便捷函数：原位翻译 PDF
     """
     translator = PDFInplaceTranslator(api_key=api_key, model=model)
-    return translator.translate_pdf(pdf_path, output_path)
+    return translator.translate_pdf(pdf_path, output_path, target_language=target_language)

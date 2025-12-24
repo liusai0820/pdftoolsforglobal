@@ -4,11 +4,9 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app.main:app
+    startCommand: gunicorn app.main:app --timeout 180 --workers 2
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11
-      - key: PORT
-        value: 5000
+        value: "3.11"
       - key: OPENROUTER_API_KEY
-        scope: secret
+        sync: false

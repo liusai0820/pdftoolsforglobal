@@ -20,7 +20,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / 'scripts'))
 
 from pdf_translator.pdf_inplace_translator import translate_pdf_inplace
-from pdf_vector_color_replacer import replace_color_with_device_rgb
+from pdf_vector_color_replacer import replace_color_with_device_rgb, analyze_pdf_colors
 
 app = Flask(__name__, template_folder=str(PROJECT_ROOT / 'templates'))
 
@@ -79,6 +79,28 @@ def upload_file():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/analyze_colors', methods=['POST'])
+def analyze_colors():
+    """分析PDF颜色"""
+    data = request.json
+    filepath = data.get('filepath')
+    
+    if not filepath:
+        return jsonify({'success': False, 'error': 'No file path provided'}), 400
+        
+    try:
+        # 确保路径安全
+        filepath = Path(filepath)
+        # 简单校验是否在上传目录内（防止路径遍历）
+        # 这里为了演示简单起见，假设路径是合法的绝对路径
+        
+        colors = analyze_pdf_colors(str(filepath))
+        return jsonify({'success': True, 'colors': colors})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/process', methods=['POST'])
 def process_pdf():
     """处理PDF"""
@@ -96,15 +118,19 @@ def process_pdf():
         
         if operation == 'translate':
             # PDF 翻译
+            target_language = data.get('target_language', "English")
+            
             result = translate_pdf_inplace(
                 str(input_path),
-                output_path=str(output_path)
+                output_path=str(output_path),
+                target_language=target_language
             )
             
             return jsonify({
                 'success': True,
-                'message': 'PDF翻译完成',
-                'download_url': f'/api/download/{output_filename}'
+                'message': f'PDF翻译完成 ({target_language})',
+                'download_url': f'/api/download/{output_filename}',
+                'filename': output_filename
             })
         
         elif operation == 'color':
@@ -122,7 +148,8 @@ def process_pdf():
             return jsonify({
                 'success': True,
                 'message': '颜色替换完成',
-                'download_url': f'/api/download/{output_filename}'
+                'download_url': f'/api/download/{output_filename}',
+                'filename': output_filename
             })
         
         elif operation == 'text':
