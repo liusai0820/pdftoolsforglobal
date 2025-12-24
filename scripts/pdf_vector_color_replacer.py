@@ -133,7 +133,7 @@ def color_distance(cmyk1, cmyk2):
 
 def replace_color_with_device_rgb(input_pdf: str, output_pdf: str, 
                                   source_cmyk: tuple, target_hex: str,
-                                  tolerance: float = 80.0):
+                                  tolerance: float = 120.0):
     """
     将源CMYK颜色及其相似颜色替换为目标RGB颜色
     
@@ -142,7 +142,7 @@ def replace_color_with_device_rgb(input_pdf: str, output_pdf: str,
         output_pdf: 输出PDF文件路径
         source_cmyk: 源颜色的CMYK值 (c, m, y, k)，范围0-1
         target_hex: 目标颜色的十六进制值，如 "#01beb0"
-        tolerance: 颜色容差（RGB 空间距离），默认 80，相似颜色都会被替换
+        tolerance: 颜色容差（RGB 空间距离），默认 120，相似颜色都会被替换
     """
     print(f"打开PDF: {input_pdf}")
     pdf = pikepdf.open(input_pdf)
